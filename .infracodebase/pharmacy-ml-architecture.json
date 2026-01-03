@@ -1,0 +1,253 @@
+{
+  "nodes": [
+    {
+      "id": "japan-office",
+      "label": "Japan Pharmacy Office",
+      "subtitle": "Customer Network",
+      "icon": "/icons/aws/network/vpc-customer-gateway.png"
+    },
+    {
+      "id": "customer-gateway",
+      "label": "Customer Gateway",
+      "subtitle": "BGP ASN 65000",
+      "icon": "/icons/aws/network/vpc-customer-gateway.png"
+    },
+    {
+      "id": "vpn-connection",
+      "label": "Site-to-Site VPN",
+      "subtitle": "Encrypted IPsec Tunnel",
+      "icon": "/icons/aws/network/site-to-site-vpn.png"
+    },
+    {
+      "id": "vpn-gateway",
+      "label": "VPN Gateway",
+      "subtitle": "AWS Managed",
+      "icon": "/icons/aws/network/vpn-gateway.png"
+    },
+    {
+      "id": "vpc",
+      "label": "VPC",
+      "subtitle": "pharmacy-ml-vpc (10.0.0.0/16)",
+      "icon": "/icons/aws/network/vpc-elastic-network-adapter.png",
+      "type": "container"
+    },
+    {
+      "id": "private-subnet-1",
+      "label": "Private Subnet",
+      "subtitle": "AZ-1a (10.0.1.0/24)",
+      "icon": "/icons/aws/network/public-subnet.png",
+      "type": "container",
+      "parentNode": "vpc"
+    },
+    {
+      "id": "private-subnet-2",
+      "label": "Private Subnet",
+      "subtitle": "AZ-1b (10.0.2.0/24)",
+      "icon": "/icons/aws/network/public-subnet.png",
+      "type": "container",
+      "parentNode": "vpc"
+    },
+    {
+      "id": "private-subnet-3",
+      "label": "Private Subnet",
+      "subtitle": "AZ-1c (10.0.3.0/24)",
+      "icon": "/icons/aws/network/public-subnet.png",
+      "type": "container",
+      "parentNode": "vpc"
+    },
+    {
+      "id": "db-subnet-group",
+      "label": "Database Subnet Group",
+      "subtitle": "Multi-AZ (10.0.11-13.0/24)",
+      "icon": "/icons/aws/network/public-subnet.png",
+      "type": "container",
+      "parentNode": "vpc"
+    },
+    {
+      "id": "ml-training-asg",
+      "label": "ML Training ASG",
+      "subtitle": "p3.2xlarge (GPU)",
+      "icon": "/icons/aws/management/auto-scaling.png",
+      "parentNode": "private-subnet-1"
+    },
+    {
+      "id": "ml-inference-asg",
+      "label": "ML Inference ASG",
+      "subtitle": "g4dn.xlarge (GPU)",
+      "icon": "/icons/aws/management/auto-scaling.png",
+      "parentNode": "private-subnet-2"
+    },
+    {
+      "id": "rds-postgresql",
+      "label": "RDS PostgreSQL",
+      "subtitle": "pharmacy_ml db",
+      "icon": "/icons/aws/database/rds-postgresql-instance.png",
+      "parentNode": "db-subnet-group"
+    },
+    {
+      "id": "vpc-endpoints",
+      "label": "VPC Endpoints",
+      "subtitle": "S3, EC2, SSM, Secrets Manager",
+      "icon": "/icons/aws/network/vpc.png",
+      "parentNode": "private-subnet-3"
+    },
+    {
+      "id": "s3-models",
+      "label": "S3 Bucket",
+      "subtitle": "ML Models Storage",
+      "icon": "/icons/aws/storage/simple-storage-service-s3-bucket-with-objects.png",
+      "position": {
+        "relativeTo": "vpc",
+        "side": "right"
+      }
+    },
+    {
+      "id": "s3-training-data",
+      "label": "S3 Bucket",
+      "subtitle": "Training Data Storage",
+      "icon": "/icons/aws/storage/simple-storage-service-s3-bucket-with-objects.png",
+      "position": {
+        "relativeTo": "s3-models",
+        "side": "below"
+      }
+    },
+    {
+      "id": "kms",
+      "label": "KMS Key",
+      "subtitle": "pharmacy-ml-key",
+      "icon": "/icons/aws/security/key-management-service.png",
+      "position": {
+        "relativeTo": "s3-training-data",
+        "side": "below"
+      }
+    },
+    {
+      "id": "secrets-manager",
+      "label": "Secrets Manager",
+      "subtitle": "DB Creds, API Keys",
+      "icon": "/icons/aws/security/secrets-manager.png",
+      "position": {
+        "relativeTo": "kms",
+        "side": "below"
+      }
+    },
+    {
+      "id": "cloudwatch",
+      "label": "CloudWatch",
+      "subtitle": "Monitoring & Logs",
+      "icon": "/icons/aws/management/cloudwatch.png",
+      "position": {
+        "relativeTo": "vpc",
+        "side": "left"
+      }
+    },
+    {
+      "id": "iam-role",
+      "label": "IAM Roles",
+      "subtitle": "ML Instance Roles",
+      "icon": "/icons/aws/security/identity-and-access-management-iam-role.png",
+      "position": {
+        "relativeTo": "cloudwatch",
+        "side": "below"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "office-to-cgw",
+      "source": "japan-office",
+      "target": "customer-gateway",
+      "label": "Office Network"
+    },
+    {
+      "id": "cgw-to-vpn",
+      "source": "customer-gateway",
+      "target": "vpn-connection",
+      "label": "IPsec Tunnel"
+    },
+    {
+      "id": "vpn-to-vgw",
+      "source": "vpn-connection",
+      "target": "vpn-gateway",
+      "label": "Encrypted Connection"
+    },
+    {
+      "id": "vgw-to-vpc",
+      "source": "vpn-gateway",
+      "target": "vpc",
+      "label": "Private Network"
+    },
+    {
+      "id": "training-to-db",
+      "source": "ml-training-asg",
+      "target": "rds-postgresql",
+      "label": "Training Metadata"
+    },
+    {
+      "id": "inference-to-db",
+      "source": "ml-inference-asg",
+      "target": "rds-postgresql",
+      "label": "Prediction Logs"
+    },
+    {
+      "id": "vpc-to-s3-models",
+      "source": "vpc-endpoints",
+      "target": "s3-models",
+      "label": "Model Storage"
+    },
+    {
+      "id": "vpc-to-s3-data",
+      "source": "vpc-endpoints",
+      "target": "s3-training-data",
+      "label": "Training Data"
+    },
+    {
+      "id": "s3-models-kms",
+      "source": "s3-models",
+      "target": "kms",
+      "label": "Encrypted"
+    },
+    {
+      "id": "s3-data-kms",
+      "source": "s3-training-data",
+      "target": "kms",
+      "label": "Encrypted"
+    },
+    {
+      "id": "rds-kms",
+      "source": "rds-postgresql",
+      "target": "kms",
+      "label": "Encrypted"
+    },
+    {
+      "id": "vpc-to-secrets",
+      "source": "vpc-endpoints",
+      "target": "secrets-manager",
+      "label": "Secure Access"
+    },
+    {
+      "id": "secrets-kms",
+      "source": "secrets-manager",
+      "target": "kms",
+      "label": "Encrypted"
+    },
+    {
+      "id": "vpc-to-cloudwatch",
+      "source": "vpc",
+      "target": "cloudwatch",
+      "label": "Monitoring"
+    },
+    {
+      "id": "iam-to-instances",
+      "source": "iam-role",
+      "target": "ml-training-asg",
+      "label": "Service Role"
+    },
+    {
+      "id": "iam-to-inference",
+      "source": "iam-role",
+      "target": "ml-inference-asg",
+      "label": "Service Role"
+    }
+  ]
+}

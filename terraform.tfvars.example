@@ -1,0 +1,29 @@
+# Example Terraform variables file for Japan-based pharmacy ML pipeline
+# Copy this file to terraform.tfvars and customize the values
+
+# Core Configuration
+aws_region     = "ap-northeast-1"  # Tokyo region for Japan-based deployment
+environment    = "production"
+project_name   = "pharmacy-ml"
+
+# Network Configuration
+vpc_cidr                = "10.0.0.0/16"
+private_subnet_cidrs    = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+database_subnet_cidrs   = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
+
+# VPN Configuration (REQUIRED - Update with actual values)
+customer_gateway_ip     = "203.0.113.12"  # Replace with your Japan office public IP
+customer_bgp_asn        = 65000           # Your BGP ASN
+allowed_ssh_cidr        = "192.168.1.0/24"  # Your office internal network CIDR
+
+# ML Infrastructure Configuration
+ml_instance_type           = "p3.2xlarge"    # NVIDIA V100 GPU for training
+ml_inference_instance_type = "g4dn.xlarge"   # NVIDIA T4 GPU for inference
+model_storage_retention_days = 2555          # ~7 years for healthcare compliance
+
+# Database Configuration
+rds_instance_class          = "db.r5.large"
+rds_backup_retention_period = 35  # Extended retention for healthcare compliance
+
+# Security Configuration
+kms_key_rotation_enabled = true
